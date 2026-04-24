@@ -1,18 +1,607 @@
 <!DOCTYPE html>
-<html>
+<html lang="es">
 <head>
-  <title>Catálogo de Celulares</title>
-</head>
-<body>
-  <h1>Mi Catálogo</h1>
-  <div>
-    <h2>Samsung A15</h2>
-    <p>Precio: 150$</p>
-  </div>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Smart GSM</title>
 
-  <div>
-    <h2>Xiaomi Redmi Note</h2>
-    <p>Precio: 200$</p>
-  </div>
+<style>
+body {
+margin:0;
+font-family:'Segoe UI',Arial;
+background: linear-gradient(135deg, #dbeafe, #eef2ff, #f8fafc);
+background-size: 300% 300%;
+animation: fondoAnimado 12s ease infinite;
+}
+
+@keyframes fondoAnimado {
+0% {background-position: 0% 50%;}
+50% {background-position: 100% 50%;}
+100% {background-position: 0% 50%;}
+}
+
+header {
+background: linear-gradient(135deg,#0f172a,#1e293b);
+color:white;
+padding:15px;
+display:flex;
+flex-direction:column;
+gap:10px;
+box-shadow:0 5px 20px rgba(0,0,0,0.25);
+position:sticky;
+top:0;
+z-index:100;
+}
+
+.topbar {display:flex;justify-content:space-between;align-items:center;}
+
+input {
+padding:10px 15px;
+border-radius:25px;
+border:none;
+width:230px;
+outline:none;
+box-shadow:0 3px 10px rgba(0,0,0,0.15);
+transition:0.3s;
+}
+
+input:focus {
+transform:scale(1.05);
+}
+
+#filtros {display:flex;gap:8px;flex-wrap:wrap;}
+
+#filtros button {
+background:white;
+border:1px solid #d1d5db;
+padding:8px 14px;
+border-radius:20px;
+cursor:pointer;
+font-size:13px;
+font-weight:500;
+transition:all 0.25s ease;
+}
+
+#filtros button:hover {
+background:#000;
+color:white;
+border-color:#000;
+transform:scale(1.05);
+}
+
+#filtros button.activo {
+background:#000;
+color:white;
+border-color:#000;
+}
+
+.container {
+display:grid;
+grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+gap:20px;padding:20px;
+}
+
+.card {
+background: rgba(255,255,255,0.75);
+backdrop-filter: blur(10px);
+border-radius:20px;
+padding:15px;
+text-align:center;
+box-shadow:0 8px 25px rgba(0,0,0,0.1);
+position:relative;
+transition: transform 0.3s ease, box-shadow 0.3s ease;
+border:1px solid rgba(255,255,255,0.3);
+}
+
+.card:hover {
+transform: scale(1.05);
+box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+}
+
+.card.agotado {filter: grayscale(100%) brightness(0.85);}
+
+.badge {
+position:absolute;top:10px;left:10px;
+background:#dc3545;color:white;
+padding:4px 8px;border-radius:6px;font-size:12px;
+}
+
+.card img {
+width:100%;
+height:160px;
+object-fit:contain;
+transition: transform 0.3s ease;
+}
+
+.card:hover img {transform: scale(1.1);}
+
+.price {
+font-weight:bold;
+margin:10px 0;
+font-size:20px;
+color:#16a34a;
+}
+
+.btn {
+background:#111827;
+color:white;
+border:none;
+padding:10px;
+border-radius:12px;
+width:100%;
+cursor:pointer;
+margin-top:5px;
+transition:0.3s;
+}
+
+.btn:hover {
+transform:scale(1.05);
+}
+
+.buy {
+background: linear-gradient(135deg,#25D366,#128C7E);
+font-weight:bold;
+}
+
+#abrirCarrito {
+position:fixed;
+bottom:20px;
+right:20px;
+background: linear-gradient(135deg,#000,#374151);
+color:white;
+border:none;
+padding:18px;
+border-radius:50%;
+font-size:22px;
+z-index:999;
+box-shadow:0 10px 25px rgba(0,0,0,0.5);
+transition:0.3s;
+}
+
+#abrirCarrito:hover {
+transform:scale(1.1);
+}
+
+#contador {
+position:absolute;top:-5px;right:-5px;
+background:red;color:white;font-size:12px;
+padding:3px 6px;border-radius:50%;
+}
+
+.panel {
+position:fixed;
+right:0;
+top:0;
+width:350px;
+height:100%;
+background:white;
+box-shadow:-5px 0 20px rgba(0,0,0,0.2);
+padding:15px;
+transform:translateX(100%);
+transition:0.3s;
+display:flex;
+flex-direction:column;
+z-index:1000;
+
+/* 👇 CLAVE */
+overflow-y:auto;
+}
+.panel.activo {transform:translateX(0);}
+
+#overlay {
+position:fixed;top:0;left:0;width:100%;height:100%;
+background:rgba(0,0,0,0.4);display:none;
+z-index:999;
+}
+#overlay.activo {display:block;}
+
+.item {
+display:flex;justify-content:space-between;
+align-items:center;background:#f9fafb;
+padding:8px;border-radius:10px;margin:8px 0;
+}
+
+.controls button {
+background:#e5e7eb;border:none;
+padding:4px 8px;border-radius:6px;
+cursor:pointer;
+}
+
+.footer-carrito {margin-top:auto;padding-top:10px;}
+
+.total {font-size:20px;font-weight:bold;margin-bottom:10px;}
+
+.btn2 {
+width:100%;padding:12px;border:none;
+border-radius:10px;margin-top:5px;
+cursor:pointer;font-size:14px;
+}
+
+.whatsapp {background:#25D366;color:white;}
+.vaciar {background:#dc3545;color:white;}
+.ver {background:#0d6efd;color:white;}
+
+  /* TODO TU CSS ACTUAL */
+
+/* ===== BOTONES WHATSAPP PRO ===== */
+
+.vendedores {
+display:flex;
+flex-direction:column;
+gap:10px;
+margin-top:10px;
+}
+
+.vendedores button {
+display:flex;
+align-items:center;
+justify-content:center;
+gap:8px;
+padding:12px;
+border-radius:12px;
+border:none;
+font-weight:bold;
+font-size:14px;
+cursor:pointer;
+color:white;
+background:linear-gradient(135deg,#25D366,#128C7E);
+box-shadow:0 4px 12px rgba(0,0,0,0.25);
+transition:all 0.25s ease;
+}
+
+/* efecto hover */
+.vendedores button:hover {
+transform:scale(1.05);
+box-shadow:0 8px 18px rgba(0,0,0,0.35);
+}
+
+/* efecto click */
+.vendedores button:active {
+transform:scale(0.95);
+}
+
+/* ===== BOTONES WHATSAPP PRO UNIVERSAL ===== */
+
+.btn2.whatsapp {
+background: linear-gradient(135deg,#25D366,#128C7E);
+color:white;
+font-weight:bold;
+display:flex;
+align-items:center;
+justify-content:center;
+gap:8px;
+border-radius:14px;
+box-shadow:0 4px 12px rgba(0,0,0,0.25);
+transition:all 0.3s ease;
+}
+
+/* hover */
+.btn2.whatsapp:hover {
+transform:scale(1.05);
+box-shadow:0 8px 18px rgba(0,0,0,0.35);
+}
+
+/* click */
+.btn2.whatsapp:active {
+transform:scale(0.95);
+}
+
+.logo img{
+height:40px;
+object-fit:contain;
+}
+
+.logo img{
+height:45px;
+filter: drop-shadow(0 2px 6px rgba(0,0,0,0.5));
+}
+  
+</style>
+</head>
+
+<body>
+
+<header>
+<div class="topbar">
+<div class="logo">
+<img src="img/logo.png" alt="Smart GSM">
+</div>
+<input type="text" id="buscador" placeholder="Buscar...">
+</div>
+
+<div id="filtros">
+<button onclick="filtrar('')" class="activo">Todos</button>
+<button onclick="filtrar('apple')">Apple</button>
+<button onclick="filtrar('xiaomi')">Xiaomi</button>
+<button onclick="filtrar('honor')">Honor</button>
+<button onclick="filtrar('realme')">Realme</button>
+<button onclick="filtrar('tecno')">Tecno</button>
+<button onclick="filtrar('infinix')">Infinix</button>
+<button onclick="toggleAgotados(this)">Ocultar agotados</button>
+</div>
+</header>
+
+<div id="overlay" onclick="cerrarPanel()"></div>
+
+<button id="abrirCarrito" onclick="togglePanel()">
+🛒 <span id="contador">0</span>
+</button>
+
+<div class="container" id="productos"></div>
+
+<div class="panel" id="panel">
+<h3>🧾 Pedido</h3>
+<div id="lista"></div>
+
+<div class="footer-carrito">
+<div class="total">💰 Total: Bs <span id="total">0</span></div>
+
+<button class="btn2 ver" onclick="verPedido()">🧾 Ver pedido</button>
+
+<div id="whatsappVendedores" style="display:flex;flex-direction:column;gap:6px;"></div>
+
+<button class="btn2 vaciar" onclick="vaciar()">🗑 Vaciar</button>
+</div>
+</div>
+
+<script>
+let cart={};
+let ocultarAgotados=false;
+
+let vendedores = [
+{nombre:"Eliana", numero:"59165391513"},
+{nombre:"Pamela", numero:"59165391518"},
+{nombre:"Judith", numero:"59165391339"},
+{nombre:"Fabiola", numero:"59169484826"},
+{nombre:"Janine", numero:"59160751226"},
+{nombre:"Fedor", numero:"59170341190"}
+];
+
+let productos=[
+["Alcatel 3T 10 Smart 2/32",686,false,"img/alcatel.jpg"],
+
+["Apple Iphone 15 128GB",6145,false,"img/iphone15.jpg"],
+["Apple Iphone 16 128GB",7183,false,"img/iphone16.jpg"],
+["Apple Iphone 17 256GB",8957,false,"img/iphone17.jpg"],
+["Apple Iphone 17 Pro Max 256GB",13867,false,"img/iphone17promax.png"],
+["Apple Iphone Air 256GB",9163,false,"img/iphoneair.jpg"],
+
+["Honor Magic 8 Lite 8/256",3283,false,"img/magic8lite.png"],
+["Honor Magic 8 Lite 8/512",3430,true],
+["Honor Magic 8 Pro 12/512",11733,true],
+["Honor Pad 10 8/256",3187,true],
+["Honor Pad X7 4/128",1215,false,"img/padx7.png"],
+["Honor Pad X8A 4/128",1519,false,"img/padx8a.png"],
+["Honor Pad X9A 8/128 + Teclado",2323,true],
+["Honor X5C 4/128",789,true],
+["Honor X5C 4/64",741,true],
+["Honor X5C Plus 4/256",1215,false,"img/x5cplus.png"],
+["Honor X6C 6/256",1216,true],
+["Honor X6C 8/256",1511,true,"img/x6c.png"],
+["Honor X7D 6/256",1710,true,"img/x7d6.png"],
+["Honor X7D 8/256",2009,false,"img/x7d8.png"],
+["Honor X8C 8/256",1805,true],
+["Honor X8D 8/256",2234,false,"img/x8d256.png"],
+["Honor X8D 8/512",2607,false,"img/x8d512.png"],
+
+["Infinix Gt 30 Pro 12/512",3230,true],
+["Infinix Hot 60 Pro 8/256",1330,true],
+["Infinix Hot 60 Pro+ 8/256",1960,false,"img/hot60proplus.png"],
+["Infinix Hot 60I 4/256",988,true],
+["Infinix Note 50 Pro 8/256",2176,false,"img/note50pro.png"],
+["Infinix Note 50S 5G 8/256",2156,false,"img/note50s.png"],
+["Infinix Note 50X 8/256",1764,false,"img/note50x.png"],
+
+["Realme 14 Pro+ 5G 12/512",3753,true,"img/14proplus.png"],
+["Realme 14 5G 8/256",2391,false,"img/145g.png"],
+["Realme 14T 8/256",2029,false,"img/14t.png"],
+["Realme C71 8/256",1470,false,"img/c71.png"],
+["Realme C85 8/256",1970,false,"img/c85.png"],
+["Realme Note 70 4/128",1058,false,"img/note704.png"],
+["Realme Note 70 8/256",1273,true,"img/note708.png"],
+
+["Tecno Pova 7 4G 8/256",1803,false,"img/pova74g.png"],
+["Tecno Pova 7 5G 8/256",2166,true,"img/pova75g.png"],
+["Tecno Pova Curve 2 5G",2783,false,"img/povacurve2.png"],
+["Tecno Spark Go 3 4/128",931,true,"img/sparkgo3128.png"],
+["Tecno Spark Go 3 4/64",862,false,"img/sparkgo364.png"],
+
+["Xiaomi Pad 7 8/256",3381,false,"img/pad7.png"],
+["Xiaomi Pad 7 Pro 8/256",4228,true,"img/pad7pro.png"],
+["Xiaomi Pad Mini 12/512",4753,false,"img/padmini.png"],
+["Xiaomi Poco F8 Pro 12/256",5047,false,"img/pocof8pro256.png"],
+["Xiaomi Poco F8 Ultra 12/256",6909,false,"img/pocof8ultra12.png"],
+["Xiaomi Poco F8 Ultra 16/512",7595,false,"img/pocof8ultra16.png"],
+["Xiaomi Poco M7 Pro 12/512",2264,false,"img/pocom7pro.png"],
+["Xiaomi Poco M8 5G 8/512",2421,false,"img/pocom8.png"],
+["Xiaomi Poco M8 Pro 5G 12/512",3322,false,"img/pocom8pro12.png"],
+["Xiaomi Poco M8 Pro 5G 8/256",2891,false,"img/pocom8pro8.png"],
+["Xiaomi Poco Pad 8/256",2233,true,"img/pocopad.png"],
+["Xiaomi Poco Pad M1 8/256",2734,false,"img/pocopadm1.png"],
+["Xiaomi Poco Pad X1 8/512",3381,false,"img/pocopadx1.png"],
+["Xiaomi Poco X7 Pro 5G 12/512",3430,false,"img/pocox7pro12.png"],
+["Xiaomi Poco X7 Pro 5G 8/256",2641,true,"img/pocox7pro8.png"],
+["Xiaomi Poco X8 Pro 12/512",3724,false,"img/pocox8pro12.png"],
+["Xiaomi Poco X8 Pro 8/256",3116,false,"img/pocox8pro8.png"],
+["Xiaomi Poco X8 Pro Max 12/512",4704,false,"img/pocox8promax.png"],
+
+["Xiaomi Redmi 15C 4/128",1058,false,"img/redmi15c4.png"],
+["Xiaomi Redmi 15C 4/256",1166,false,"img/redmi15c4256.png"],
+["Xiaomi Redmi 15C 8/256",1294,false,"img/redmi15c8256.png"],
+["Xiaomi Redmi Note 14 Pro 5G 8/256",2470,false,"img/redminote14pro5g.png"],
+["Xiaomi Redmi Note 14 Pro 8/256",2156,false,"img/redminote14pro.png"],
+["Xiaomi Redmi Note 14 Pro+ 12/256",2940,false,"img/redminote14proplus12256.png"],
+["Xiaomi Redmi Note 14 Pro+ 12/512",3234,false,"img/redminote14proplus12512.png"],
+["Xiaomi Redmi Note 14 Pro+ 8/256",2724,false,"img/redminote14proplus8256.png"],
+["Xiaomi Redmi Note 15 6/128",1617,false,"img/redminote156.png"],
+["Xiaomi Redmi Note 15 8/256",1813,false,"img/redminote158.png"],
+["Xiaomi Redmi Note 15 Pro 5G 8/256",2695,false,"img/redminote15pro5g.png"],
+["Xiaomi Redmi Note 15 Pro 8/256",2234,false,"img/redminote15pro.png"],
+["Xiaomi Redmi Note 15 Pro+ 12/512",3744,false,"img/redminote15proplus12.png"],
+["Xiaomi Redmi Note 15 Pro+ 8/256",3273,false,"img/redminote15proplus8.png"],
+
+["Xiaomi Redmi Pad 2 4/128",1519,false,"img/redmipad24.png"],
+["Xiaomi Redmi Pad 2 4G 8/256",2205,false,"img/redmipad24g.png"],
+["Xiaomi Redmi Pad 2 8/256",2009,false,"img/redmipad28.png"],
+["Xiaomi Redmi Pad 2 Pro 8/256",2765,true,"img/redmipad2pro.png"],
+["Xiaomi Redmi Pad Pro 5G 8/256",2708,true,"img/redmipadpro5g.png"],
+["Xiaomi Redmi Pad Pro 8/256",2195,true,"img/redmipadpro.png"],
+["Xiaomi Redmi Pad Se 8/256",1615,true,"img/redmipadse8.png"]
+];
+
+function mostrar(lista){
+let html="";
+lista.forEach(p=>{
+if(ocultarAgotados && p[2]) return;
+
+let img = p[3] ? p[3] : "img/default.png";
+
+html+=`
+<div class="card ${p[2] ? 'agotado' : ''}">
+${p[2]?'<div class="badge">❌ AGOTADO</div>':''}
+<img src="${img}">
+<p>${p[0]}</p>
+<p class="price">Bs ${p[1].toLocaleString()}</p>
+${p[2] ? `
+<button class="btn" disabled>Sin stock</button>
+<button class="btn buy" disabled>No disponible</button>
+` : `
+<button class="btn" onclick="add('${p[0]}',${p[1]})">Agregar</button>
+<button class="btn buy" onclick="comprar('${p[0]}',${p[1]})">💬 Comprar por WhatsApp</button>
+`}
+</div>`;
+});
+document.getElementById("productos").innerHTML=html;
+}
+
+function toggleAgotados(btn){
+ocultarAgotados=!ocultarAgotados;
+btn.textContent = ocultarAgotados ? "Mostrar agotados" : "Ocultar agotados";
+mostrar(productos);
+}
+
+function renderVendedores(){
+let html="<strong>📲 Elegir vendedor:</strong>";
+
+vendedores.forEach(v=>{
+html += `
+<button class="btn2 whatsapp" onclick="enviar('${v.numero}','${v.nombre}')">
+📲 ${v.nombre}
+</button>
+`;
+});
+
+document.getElementById("whatsappVendedores").innerHTML = html;
+}
+
+function enviar(numero,nombre){
+let txt="🛒 *SMART GSM*%0A%0A";
+let total=0;
+
+txt += "Hola " + nombre + ", quiero realizar el siguiente pedido:%0A%0A";
+
+for(let i in cart){
+let p=cart[i];
+txt+=`📱 ${i} x${p.cantidad}%0A`;
+total+=p.precio*p.cantidad;
+}
+
+txt+=`%0ATotal: Bs ${total}`;
+
+window.open("https://wa.me/"+numero+"?text="+txt);
+}
+
+function add(n,p){
+if(!cart[n]) cart[n]={precio:p,cantidad:1};
+else cart[n].cantidad++;
+render();
+}
+
+function comprar(n,p){
+
+if(!cart[n]) cart[n]={precio:p,cantidad:1};
+else cart[n].cantidad++;
+
+render();
+
+document.getElementById("panel").classList.add("activo");
+document.getElementById("overlay").classList.add("activo");
+
+}
+
+function render(){
+let html="",total=0,cant=0;
+
+for(let i in cart){
+let p=cart[i];
+let sub=p.precio*p.cantidad;
+total+=sub;
+cant+=p.cantidad;
+
+html+=`
+<div class="item">
+<div>${i}</div>
+<div class="controls">
+<button onclick="cambiar('${i}',-1)">-</button>
+${p.cantidad}
+<button onclick="cambiar('${i}',1)">+</button>
+</div>
+<div>Bs ${sub.toLocaleString()}</div>
+</div>`;
+}
+
+document.getElementById("lista").innerHTML=html;
+document.getElementById("total").innerText=total.toLocaleString();
+document.getElementById("contador").innerText=cant;
+}
+
+function cambiar(n,v){
+cart[n].cantidad+=v;
+if(cart[n].cantidad<=0) delete cart[n];
+render();
+}
+
+function vaciar(){cart={};render();}
+
+function togglePanel(){
+document.getElementById("panel").classList.toggle("activo");
+document.getElementById("overlay").classList.toggle("activo");
+}
+
+function cerrarPanel(){
+document.getElementById("panel").classList.remove("activo");
+document.getElementById("overlay").classList.remove("activo");
+}
+
+function verPedido(){
+let txt="🧾 RESUMEN%0A%0A";
+let total=0;
+
+for(let i in cart){
+let p=cart[i];
+txt+=`${i} x${p.cantidad} = Bs ${p.precio*p.cantidad}%0A`;
+total+=p.precio*p.cantidad;
+}
+
+txt+=`%0ATotal: Bs ${total}`;
+alert(decodeURIComponent(txt));
+}
+
+document.getElementById("buscador").addEventListener("input",e=>{
+let val=e.target.value.toLowerCase();
+let filtrado=productos.filter(p=>p[0].toLowerCase().includes(val));
+mostrar(filtrado);
+});
+
+function filtrar(marca){
+if(!marca){mostrar(productos);return;}
+let filtrado=productos.filter(p=>p[0].toLowerCase().includes(marca));
+mostrar(filtrado);
+}
+
+mostrar(productos);
+renderVendedores();
+</script>
+
 </body>
 </html>
