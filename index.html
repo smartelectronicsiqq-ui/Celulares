@@ -334,7 +334,7 @@ filter: drop-shadow(0 2px 6px rgba(0,0,0,0.5));
 <div id="lista"></div>
 
 <div class="footer-carrito">
-<div class="total">💰 Total: Bs <span id="total">0</span></div>
+<div class="total">💰 Total: $us <span id="total">0</span></div>
 
 <button class="btn2 ver" onclick="verPedido()">🧾 Ver pedido</button>
 
@@ -461,7 +461,7 @@ html+=`
 ${p[2]?'<div class="badge">❌ AGOTADO</div>':''}
 <img src="${img}">
 <p>${p[0]}</p>
-<p class="price">Bs ${p[1].toLocaleString()}</p>
+<p class="price">$us ${p[1].toLocaleString()}</p>
 ${p[2] ? `
 <button class="btn" disabled>Sin stock</button>
 <button class="btn buy" disabled>No disponible</button>
@@ -495,7 +495,7 @@ document.getElementById("whatsappVendedores").innerHTML = html;
 }
 
 function enviar(numero,nombre){
-let txt="🛒 *SMART GSM*%0A%0A";
+let txt="🛒 *SMART ELECTRONICS*%0A%0A";
 let total=0;
 
 txt += "Hola " + nombre + ", quiero realizar el siguiente pedido:%0A%0A";
@@ -506,7 +506,7 @@ txt+=`📱 ${i} x${p.cantidad}%0A`;
 total+=p.precio*p.cantidad;
 }
 
-txt+=`%0ATotal: Bs ${total}`;
+txt+=`%0ATotal: $us ${total}`;
 
 window.open("https://wa.me/"+numero+"?text="+txt);
 }
@@ -579,11 +579,11 @@ let total=0;
 
 for(let i in cart){
 let p=cart[i];
-txt+=`${i} x${p.cantidad} = Bs ${p.precio*p.cantidad}%0A`;
+txt+=`${i} x${p.cantidad} = $us ${p.precio*p.cantidad}%0A`;
 total+=p.precio*p.cantidad;
 }
 
-txt+=`%0ATotal: Bs ${total}`;
+txt+=`%0ATotal: $us ${total}`;
 alert(decodeURIComponent(txt));
 }
 
